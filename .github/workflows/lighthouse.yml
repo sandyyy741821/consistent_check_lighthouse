@@ -1,0 +1,27 @@
+# .github/workflows/lighthouse.yml
+name: Lighthouse CI
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lighthouseci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies (frontend only)
+        run: npm ci --prefix frontend
+
+      - name: Install Lighthouse CI globally
+        run: npm install -g @lhci/cli
+
+      - name: Run Lighthouse CI
+        run: lhci autorun

@@ -54,10 +54,11 @@ export const authAPI = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        username: credentials.username,
+        email: credentials.email,
         password: credentials.password
       }),
     });
+    console.log('Logging in with:', credentials);
     return handleResponse(response);
   },
 

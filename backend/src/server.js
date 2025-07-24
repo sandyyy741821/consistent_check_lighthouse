@@ -14,7 +14,10 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 // Register Download Route
@@ -41,29 +44,31 @@ const scheduleSecurityQuestionsReset = async (userId) => {
 // Login endpoint
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
-    // Get user from database
+    const { email, password } = req.body;
+
+     if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
     const result = await query(
-      'SELECT * FROM users WHERE username = $1',
-      [username]
+      'SELECT * FROM users WHERE email = $1',
+      [email.trim().toLowerCase()]
     );
-    
+
     if (result.rows.length === 0) {
-      // Log failed attempt for non-existent user
       await query(
         'INSERT INTO login_history (username, ip_address, status, failure_reason, email) VALUES ($1, $2, $3, $4, $5)',
-        [username, req.ip, 'failed', 'User not found', username]
+        [email, req.ip, 'failed', 'User not found', email]
       );
-      console.log(`Login failed: ${username} - User not found`);
+      console.log(`Login failed: ${email} - User not found`);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     const user = result.rows[0];
-    
-    // Verify password
+    const username = user.username; // Fix: define username from user data
+
     const validPassword = await bcrypt.compare(password, user.password_hash);
     if (!validPassword) {
-      // Log failed attempt for incorrect password
       await query(
         'INSERT INTO login_history (user_id, username, ip_address, status, failure_reason, email) VALUES ($1, $2, $3, $4, $5, $6)',
         [user.id, username, req.ip, 'failed', 'Invalid password', user.email]
@@ -72,20 +77,17 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
-    // Record successful login
     await query(
       'INSERT INTO login_history (user_id, username, ip_address, status, email) VALUES ($1, $2, $3, $4, $5)',
       [user.id, username, req.ip, 'success', user.email]
     );
 
-    // Get login history
     const loginHistoryResult = await query(
       `SELECT 
         COUNT(*) as total_attempts,
@@ -97,7 +99,6 @@ app.post('/api/auth/login', async (req, res) => {
       [user.id]
     );
 
-    // Get detailed login history
     const detailedHistoryResult = await query(
       `SELECT 
         login_timestamp,
@@ -110,12 +111,10 @@ app.post('/api/auth/login', async (req, res) => {
     );
 
     const loginHistory = loginHistoryResult.rows[0];
-    const successfulLogins = parseInt(loginHistory.successful_logins);
+    const successfulLogins = parseInt(loginHistory.successful_logins) || 0;
     const lastLogin = loginHistory.last_successful_login;
-    const recentFailedAttempts = parseInt(loginHistory.recent_failed_attempts);
-    const detailedHistory = detailedHistoryResult.rows;
+    const recentFailedAttempts = parseInt(loginHistory.recent_failed_attempts) || 0;
 
-    // Keep detailed logging in the backend
     logDatabaseOperation('Login', { 
       username: user.username,
       email: user.email,
@@ -123,8 +122,7 @@ app.post('/api/auth/login', async (req, res) => {
       lastLogin,
       recentFailedAttempts
     });
-    
-    // Only send necessary information to frontend
+
     res.json({
       user: {
         firstName: user.first_name,
@@ -134,11 +132,13 @@ app.post('/api/auth/login', async (req, res) => {
       },
       token
     });
+
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login error:', error); // Log the full error
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Signup endpoint with validation
 app.post('/api/auth/signup', validateSignup, async (req, res) => {

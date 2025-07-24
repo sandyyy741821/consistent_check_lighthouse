@@ -4,6 +4,7 @@ import useAuthStore from '../../store/authStore';
 import { validateField, passwordRequirements } from '../../utils/validation';
 import ReCAPTCHA from 'react-google-recaptcha';
 
+
 const Signup = () => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -281,7 +282,7 @@ const Signup = () => {
             }
           </div>
           <ReCAPTCHA
-             sitekey="6LeSNyArAAAAAOP9Q5b5483PhaEGTKlwYsWalyIJ"
+             sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
              onChange={(token) => setRecaptchaToken(token)}
           />
           {recaptchaError && <div style={styles.fieldError}>{recaptchaError}</div>}

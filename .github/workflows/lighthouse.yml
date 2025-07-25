@@ -16,16 +16,29 @@ jobs:
         with:
           node-version: 20
 
-      - name: 📦 Install frontend dependencies 
-        run: npm ci --prefix frontend 
+      - name: 📦 Install frontend dependencies
+        run: npm ci --prefix frontend
 
-      - name: Install Dependencies
-        run: sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libgbm1 libxshmfence1 libasound2t64 libxss1 libgtk-3-0 libdrm2
+      - name: 📦 Install backend dependencies
+        run: npm ci --prefix backend
 
-      - name: 🏃‍♂️ Start backend serve
-        run: npm run start --prefix backend &
-        env:
-          PORT: 3001
+      - name: 📦 Install global tools
+        run: npm install -g wait-on concurrently
+
+      - name: 📚 Install Puppeteer dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 \
+            libxrandr2 libxdamage1 libgbm1 libxshmfence1 libasound2t64 \
+            libxss1 libgtk-3-0 libdrm2
+
+      - name: 🏃 Start frontend and backend concurrently
+        run: |
+          concurrently \
+            "npm run start --prefix backend" \
+            "npm run dev --prefix frontend" &
+          wait-on http://localhost:3000
 
       - name: 🌐 Run Lighthouse test
         run: npm run lh:test --prefix frontend

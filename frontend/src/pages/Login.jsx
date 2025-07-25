@@ -77,6 +77,7 @@ const Login = () => {
         <form style={styles.form} onSubmit={handleSubmit}>
           <div style={styles.inputWrapper}>
             <input
+              name="username"
               type="text"
               placeholder="Username"
               style={getInputStyle('username')}
@@ -88,6 +89,7 @@ const Login = () => {
           </div>
           <div style={styles.inputWrapper}>
             <input
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               style={getInputStyle('password')}

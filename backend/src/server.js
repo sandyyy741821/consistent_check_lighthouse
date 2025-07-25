@@ -15,7 +15,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'http://localhost:3000',
   credentials: true
 }));
 app.use(express.json());
@@ -139,6 +139,9 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+app.get('/api/testpage', (req, res) => {
+  res.json({ message: 'This is a test endpoint for Lighthouse!' });
+});
 
 // Signup endpoint with validation
 app.post('/api/auth/signup', validateSignup, async (req, res) => {

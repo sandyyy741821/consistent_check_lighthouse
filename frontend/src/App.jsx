@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Toast from './components/Toast';
+import TestPage from './pages/TestPage';
 
 // Private
 import WelcomePage from './pages/WelcomePage';
@@ -79,6 +80,7 @@ const AppContent = () => {
           </ProtectedRoute>
         } />
         <Route path="/locked-out" element={<LockedOutPage />} />
+        <Route path="/test" element={<TestPage />} />
 
         {/* Protected Routes */}
         <Route path="/welcome" element={

@@ -54,7 +54,7 @@ export const authAPI = {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: credentials.email,
+        email: credentials.username,
         password: credentials.password
       }),
     });

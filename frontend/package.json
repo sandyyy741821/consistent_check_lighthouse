@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "node server.js",
-    "lh:test": "node ./lighthouse-runner.mjs"
+    "lh:test": "node ./lighthouse-runner.mjs",
+    "lhci:run": "lhci collect && lhci assert && lhci upload"
   },
   "dependencies": {
     "cross-spawn": "^7.0.6",

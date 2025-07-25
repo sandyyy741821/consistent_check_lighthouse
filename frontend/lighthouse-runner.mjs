@@ -1,3 +1,4 @@
+//lighthouse-runner.mjs
 import { launch } from 'puppeteer';
 import fs from 'fs';
 import { mkdirSync, existsSync } from 'fs';

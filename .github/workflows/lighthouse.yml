@@ -49,13 +49,11 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
 
-      - name: 🌐 Run Lighthouse test
+      - name: 🌐 Run Lighthouse audits via Puppeteer
         run: npm run lh:test --prefix frontend
         env:
-          VITE_RECAPTCHA_SITE_KEY: ${{ secrets.VITE_RECAPTCHA_SITE_KEY }}
-          NODE_ENV: ${{ secrets.NODE_ENV }}
+          NODE_ENV: development
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
-
 
       - name: 📤 Upload Lighthouse Reports
         uses: actions/upload-artifact@v4

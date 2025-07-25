@@ -16,17 +16,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: 📦 Install frontend dependencies and backend dependencies 
-        run: npm ci --prefix frontend && npm ci --prefix backend
+      - name: 📦 Install frontend dependencies 
+        run: npm ci --prefix frontend 
 
       - name: Install Dependencies
         run: sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxrandr2 libxdamage1 libgbm1 libxshmfence1 libasound2t64 libxss1 libgtk-3-0 libdrm2
 
-      - name: Build frontend and backend
-        run: npm run build --prefix frontend && npm run build --prefix backend
-
       - name: 🏃‍♂️ Start backend serve
-        run: npm run start --prefix backend &
+        run: npm run dev --prefix backend &
         env:
           PORT: 3001
 

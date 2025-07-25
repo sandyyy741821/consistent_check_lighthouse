@@ -32,3 +32,5 @@ out/
 .tmp/
 .vite/
 .eslintcache
+
+lighthouse/

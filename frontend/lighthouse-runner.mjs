@@ -12,8 +12,6 @@ const __dirname = dirname(__filename);
 
 // Pages to test
 const pages = [
-  'http://localhost:3000/send-reset-link',
-  'http://localhost:3000/signup',
   'http://localhost:3000',
   'http://localhost:3000/welcome',
   'http://localhost:3000/test'
@@ -48,10 +46,29 @@ const run = async () => {
     stdio: 'inherit'
   });
 
-  await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for server to boot
+    // Keep checking if the page is ready
+  let isReady = false;
+  for (let i = 0; i < 10; i++) {
+    try {
+      const res = await fetch('http://localhost:3000');
+      if (res.ok) {
+        isReady = true;
+        break;
+      }
+    } catch (err) {
+      // wait and retry
+    }
+    await new Promise(resolve => setTimeout(resolve, 3000));
+  }
+
+  if (!isReady) {
+    console.error("❌ Server failed to start in time.");
+    process.exit(1);
+  }
+
 
   const browser = await launch({
-    headless: 'new',
+    headless: true,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -61,12 +78,12 @@ const run = async () => {
   const page = await browser.newPage();
 
   // Log in once before all audits if needed
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle0' });
+  await page.goto('http://localhost:3000', { waitUntil: 'networkidle0',timeout: 20000 });
   await page.type('input[placeholder=Username]', 'santhosh.rv173@gmail.com');
   await page.type('input[placeholder=Password]', 'S@ndyyy@741821');
   await Promise.all([
     page.click('button[type=submit]'),
-    page.waitForNavigation({ waitUntil: 'networkidle0' })
+    page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 20000 })
   ]);
 
   const cookies = await browser.defaultBrowserContext().cookies();

@@ -32,7 +32,7 @@ jobs:
         run: npm install -g @lhci/cli
 
       - name: 🚦 Run Lighthouse CI tests
-        run: node ./lighthouse-runner.mjs
+        run: node ./lighthouse-runner.mjs --prefix frontend
 
       - name: 📤 Upload Lighthouse Reports
         uses: actions/upload-artifact@v4

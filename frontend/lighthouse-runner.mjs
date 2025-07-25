@@ -5,6 +5,7 @@ import lighthouse from 'lighthouse';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import spawn from 'cross-spawn';
+import fetch from 'node-fetch'; // 👈 Ensure installed: npm i node-fetch
 
 // Setup __dirname in ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -31,11 +32,11 @@ const runLighthouseAudit = async (url, browser, index, cookies) => {
     }
   });
 
-  const reportPath = `${reportDir}/report-${index + 1}-${new URL(url).pathname.replace(/\//g, '') || 'home'}.html`;
+  const pathname = new URL(url).pathname.replace(/\//g, '') || 'home';
+  const reportPath = `${reportDir}/report-${index + 1}-${pathname}.html`;
   fs.writeFileSync(reportPath, report);
   console.log(`✅ Lighthouse report saved: ${reportPath}`);
 };
-
 
 const run = async () => {
   console.log('🚀 Starting frontend server...');
@@ -46,7 +47,7 @@ const run = async () => {
     stdio: 'inherit'
   });
 
-    // Keep checking if the page is ready
+  // Wait for the frontend to be ready
   let isReady = false;
   for (let i = 0; i < 10; i++) {
     try {
@@ -56,16 +57,16 @@ const run = async () => {
         break;
       }
     } catch (err) {
-      // wait and retry
+      // Wait before retry
     }
     await new Promise(resolve => setTimeout(resolve, 3000));
   }
 
   if (!isReady) {
-    console.error("❌ Server failed to start in time.");
+    console.error('❌ Server failed to start in time.');
+    serverProcess.kill();
     process.exit(1);
   }
-
 
   const browser = await launch({
     headless: true,
@@ -75,10 +76,11 @@ const run = async () => {
       '--remote-debugging-port=9222'
     ]
   });
+
   const page = await browser.newPage();
 
-  // Log in once before all audits if needed
-  await page.goto('http://localhost:3000', { waitUntil: 'networkidle0',timeout: 20000 });
+  // Login before audits
+  await page.goto('http://localhost:3000', { waitUntil: 'networkidle0', timeout: 20000 });
   await page.type('input[placeholder=Username]', 'santhosh.rv173@gmail.com');
   await page.type('input[placeholder=Password]', 'S@ndyyy@741821');
   await Promise.all([
@@ -91,7 +93,6 @@ const run = async () => {
   for (let i = 0; i < pages.length; i++) {
     await runLighthouseAudit(pages[i], browser, i, cookies);
   }
-
 
   await browser.close();
   serverProcess.kill();

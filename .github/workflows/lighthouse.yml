@@ -50,7 +50,7 @@ jobs:
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
 
       - name: 🌐 Run Lighthouse test
-        run: npm run lh:test --prefix frontend
+        run:  node frontend/lighthouse-runner.mjs
         env:
           VITE_RECAPTCHA_SITE_KEY: ${{ secrets.VITE_RECAPTCHA_SITE_KEY }}
           NODE_ENV: ${{ secrets.NODE_ENV }}

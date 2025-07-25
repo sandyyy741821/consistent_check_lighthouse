@@ -39,6 +39,7 @@ jobs:
             "npm run start --prefix backend" \
             "npm run dev --prefix frontend" &
           wait-on http://localhost:3000
+          sleep 3
         env:
           DB_HOST: ${{ secrets.DB_HOST }}
           DB_PORT: ${{ secrets.DB_PORT }}

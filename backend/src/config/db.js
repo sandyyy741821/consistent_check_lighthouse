@@ -9,6 +9,16 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
+// Optional: Immediately test the connection
+pool.connect()
+  .then(client => {
+    console.log('✅ PostgreSQL connected successfully!');
+    client.release();
+  })
+  .catch(err => {
+    console.error('❌ PostgreSQL connection error:', err.message);
+  });
+
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };

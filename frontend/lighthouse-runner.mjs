@@ -50,7 +50,14 @@ const run = async () => {
 
   await new Promise(resolve => setTimeout(resolve, 10000)); // Wait for server to boot
 
-  const browser = await launch({ headless: false, args: ['--remote-debugging-port=9222'] });
+  const browser = await launch({
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--remote-debugging-port=9222'
+    ]
+  });
   const page = await browser.newPage();
 
   // Log in once before all audits if needed
